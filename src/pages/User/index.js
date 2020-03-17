@@ -14,7 +14,7 @@ import {
   Author,
   Info,
 } from './styles';
-import {ActivityIndicator, StyleSheet} from 'react-native';
+import {ActivityIndicator} from 'react-native';
 
 export default class User extends Component {
   state = {
