@@ -14,13 +14,16 @@ import {
   Author,
   Info,
 } from './styles';
+import {ActivityIndicator, StyleSheet} from 'react-native';
 
 export default class User extends Component {
   state = {
     stars: [],
+    loading: false,
   };
 
   async componentDidMount() {
+    this.setState({loading: true});
     const {navigation, route} = this.props;
     const user = route.params.user;
     console.tron.log(user);
@@ -29,12 +32,12 @@ export default class User extends Component {
 
     const response = await api.get(`/users/${user.login}/starred`);
 
-    this.setState({stars: response.data});
+    this.setState({stars: response.data, loading: false});
   }
 
   render(props) {
-    const {navigation, route} = this.props;
-    const {stars} = this.state;
+    const {route} = this.props;
+    const {loading, stars} = this.state;
     const user = route.params.user;
 
     return (
@@ -45,19 +48,23 @@ export default class User extends Component {
           <Bio>{user.bio}</Bio>
         </Header>
 
-        <Stars
-          data={stars}
-          keyExtractor={star => String(star.id)}
-          renderItem={({item}) => (
-            <Starred>
-              <OwnerAvatar source={{uri: item.owner.avatar_url}} />
-              <Info>
-                <Title>{item.name}</Title>
-                <Author>{item.owner.login}</Author>
-              </Info>
-            </Starred>
-          )}
-        />
+        {loading ? (
+          <ActivityIndicator size="large" color="#7159c1" />
+        ) : (
+          <Stars
+            data={stars}
+            keyExtractor={star => String(star.id)}
+            renderItem={({item}) => (
+              <Starred>
+                <OwnerAvatar source={{uri: item.owner.avatar_url}} />
+                <Info>
+                  <Title>{item.name}</Title>
+                  <Author>{item.owner.login}</Author>
+                </Info>
+              </Starred>
+            )}
+          />
+        )}
       </Container>
     );
   }
