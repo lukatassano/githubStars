@@ -19,25 +19,49 @@ import {ActivityIndicator} from 'react-native';
 export default class User extends Component {
   state = {
     stars: [],
-    loading: false,
+    loading: true,
+    page: 1,
+    refreshing: false,
   };
 
   async componentDidMount() {
-    this.setState({loading: true});
+    this.load();
+  }
+
+  load = async (page = 1) => {
     const {navigation, route} = this.props;
     const user = route.params.user;
-    console.tron.log(user);
+    const {stars} = this.state;
 
     navigation.setOptions({title: user.name});
 
-    const response = await api.get(`/users/${user.login}/starred`);
+    const response = await api.get(`/users/${user.login}/starred`, {
+      params: {page},
+    });
 
-    this.setState({stars: response.data, loading: false});
-  }
+    this.setState({
+      stars: page >= 2 ? [...stars, ...response.data] : response.data,
+      page,
+      loading: false,
+      refreshing: false,
+    });
+  };
 
-  render(props) {
+  loadMore = async () => {
+    const {page} = this.state;
+
+    const nextPage = page + 1;
+
+    this.load(nextPage);
+  };
+
+  refreshList = () => {
+    this.setState({refreshing: true, stars: []}, this.load);
+  };
+
+  render() {
     const {route} = this.props;
-    const {loading, stars} = this.state;
+    const {loading, stars, refreshing} = this.state;
     const user = route.params.user;
 
     return (
@@ -54,9 +78,16 @@ export default class User extends Component {
           <Stars
             data={stars}
             keyExtractor={star => String(star.id)}
+            onRefresh={this.refreshList}
+            refreshing={refreshing}
+            onEndReachedThreshold={0.2}
+            onEndReached={this.loadMore}
             renderItem={({item}) => (
               <Starred>
-                <OwnerAvatar source={{uri: item.owner.avatar_url}} />
+                <OwnerAvatar
+                  source={{uri: item.owner.avatar_url}}
+                  {...console.tron.log(item.owner.avatar_url)}
+                />
                 <Info>
                   <Title>{item.name}</Title>
                   <Author>{item.owner.login}</Author>
