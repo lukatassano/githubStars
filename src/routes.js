@@ -19,6 +19,11 @@ export default function Routes() {
           headerBackTitleVisible: false,
           headerTintColor: '#fff',
           headerStyle: {backgroundColor: '#7159c1'},
+          animationEnabled: true,
+          headerTitleStyle: {
+            marginHorizontal: 50,
+            fontWeight: '100',
+          },
         }}>
         <Stack.Screen
           name="Main"
