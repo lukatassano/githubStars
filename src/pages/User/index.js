@@ -59,6 +59,12 @@ export default class User extends Component {
     this.setState({refreshing: true, stars: []}, this.load);
   };
 
+  handleWebView = repository => {
+    const {navigation} = this.props;
+
+    navigation.navigate('RepoBrowser', {repository});
+  };
+
   render() {
     const {route} = this.props;
     const {loading, stars, refreshing} = this.state;
@@ -83,11 +89,8 @@ export default class User extends Component {
             onEndReachedThreshold={0.2}
             onEndReached={this.loadMore}
             renderItem={({item}) => (
-              <Starred>
-                <OwnerAvatar
-                  source={{uri: item.owner.avatar_url}}
-                  {...console.tron.log(item.owner.avatar_url)}
-                />
+              <Starred onPress={() => this.handleWebView(item)}>
+                <OwnerAvatar source={{uri: item.owner.avatar_url}} />
                 <Info>
                   <Title>{item.name}</Title>
                   <Author>{item.owner.login}</Author>
